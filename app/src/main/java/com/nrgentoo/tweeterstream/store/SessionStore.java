@@ -7,5 +7,7 @@ import com.twitter.sdk.android.core.Session;
  */
 public interface SessionStore {
 
+    String ID = "SessionStore";
+
     Session getSession();
 }

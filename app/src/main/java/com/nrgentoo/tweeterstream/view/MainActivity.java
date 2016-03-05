@@ -1,7 +1,6 @@
 package com.nrgentoo.tweeterstream.view;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import com.nrgentoo.tweeterstream.R;
 import com.nrgentoo.tweeterstream.store.SessionStore;
