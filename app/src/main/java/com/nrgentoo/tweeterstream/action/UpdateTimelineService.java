@@ -41,9 +41,6 @@ public class UpdateTimelineService {
 
     /**
      * Get home timeline updates
-     *
-     * @param sinceId
-     * @return
      */
     public Observable<List<Tweet>> getHomeTimelineUpdates(long sinceId) {
         Observable<TimelineResponse> call = createHomeTimelineCall(sinceId, null);
