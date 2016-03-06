@@ -19,12 +19,14 @@
         android:layout_marginStart="16dp">
 
         <TextView
+            style="@style/TP_Body"
             android:id="@+id/tv_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Rico Monteiro" />
 
         <TextView
+            style="@style/TP_Body.secondary"
             android:id="@+id/tv_nickname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,14 +34,16 @@
             tools:text="\@aaronpaul_8"/>
 
         <TextView
+            style="@style/TP_Caption.secondary"
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            tools:text="8m"/>
+            tools:text="08:11 am"/>
 
         <TextView
+            style="@style/TP_Body"
             android:id="@+id/tv_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

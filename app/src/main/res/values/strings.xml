@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TweeterStream</string>
+    <string name="title_home_timeline">home</string>
 </resources>

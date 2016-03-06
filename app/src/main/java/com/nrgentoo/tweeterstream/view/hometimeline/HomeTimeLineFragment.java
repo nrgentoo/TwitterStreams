@@ -100,9 +100,7 @@ public class HomeTimeLineFragment extends Fragment implements HomeView {
 
     @Override
     public void hideProgress() {
-        swipeRefreshLayout.post(() -> {
-            swipeRefreshLayout.setRefreshing(false);
-        });
+        swipeRefreshLayout.setRefreshing(false);
 
         adapter.hideProgress();
     }

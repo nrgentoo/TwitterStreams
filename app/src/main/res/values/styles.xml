@@ -1,11 +1,77 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <style name="AppTheme" parent="BaseAppTheme">
+
+    </style>
+
+    <!-- Elevation compat theme -->
+    <style name="ElevationCompatTheme">
+        <item name="android:visibility">visible</item>
+    </style>
+
+    <style name="Toolbar" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">?attr/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/icons</item>
+    </style>
+
+    <!-- TEXT STYLES -->
+    <style name="TP_Display">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textSize">@dimen/tp_size_display</item>
+    </style>
+
+    <style name="TP_Display.white" parent="TP_Display">
+        <item name="android:textColor">@color/icons</item>
+    </style>
+
+    <style name="TP_Title" parent="TP_Display">
+        <item name="android:textSize">@dimen/tp_size_title</item>
+    </style>
+
+    <style name="TP_Body" parent="TP_Display">
+        <item name="android:textSize">@dimen/tp_size_body</item>
+    </style>
+
+    <style name="TP_Body.secondary" parent="TP_Body">
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+
+    <style name="TP_Caption" parent="TP_Display">
+        <item name="android:textSize">@dimen/tp_size_caption</item>
+    </style>
+
+    <style name="TP_Caption.secondary" parent="TP_Caption">
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+
+    <!-- BUTTONS -->
+    <style name="BaseButton_Accent" parent="Widget.AppCompat.Button">
+        <item name="colorButtonNormal">?attr/colorAccent</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:paddingLeft">@dimen/base_margin2x</item>
+        <item name="android:paddingRight">@dimen/base_margin2x</item>
+    </style>
+
+    <style name="Button_Accent" parent="BaseButton_Accent">
+
+    </style>
+
+    <!-- TabLayout style -->
+    <style name="AppTabLayoutStyle" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@android:color/white</item>
+        <item name="tabSelectedTextColor">@android:color/white</item>
+        <item name="tabTextColor">@android:color/white</item>
+        <item name="tabIndicatorHeight">8dp</item>
+        <item name="tabPaddingStart">8dp</item>
+        <item name="tabPaddingEnd">8dp</item>
     </style>
 
 </resources>

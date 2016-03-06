@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="BaseAppTheme">
+
+    </style>
+
+    <style name="LoginTheme" parent="AppTheme">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Elevation compat theme -->
+    <style name="ElevationCompatTheme">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- BUTTONS -->
+    <style name="Button_Accent" parent="BaseButton_Accent">
+        <item name="android:colorButtonNormal">?attr/colorAccent</item>
+    </style>
+</resources>
