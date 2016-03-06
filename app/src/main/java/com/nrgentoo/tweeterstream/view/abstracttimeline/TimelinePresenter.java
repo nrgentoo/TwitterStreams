@@ -1,4 +1,4 @@
-package com.nrgentoo.tweeterstream.view.hometimeline;
+package com.nrgentoo.tweeterstream.view.abstracttimeline;
 
 /**
  * Timeline presenter

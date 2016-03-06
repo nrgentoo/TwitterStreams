@@ -19,6 +19,9 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     List<Tweet> homeTimeline;
     List<Tweet> homeTimelineUpdates;
     List<Tweet> homeTimelineMore;
+    List<Tweet> userTimeline;
+    List<Tweet> userTimelineUpdates;
+    List<Tweet> userTimelineMore;
 
     public TimelineStoreImpl(Dispatcher dispatcher) {
         super(dispatcher);
@@ -40,10 +43,25 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     }
 
     @Override
+    public List<Tweet> getUserTimeline() {
+        return userTimeline;
+    }
+
+    @Override
+    public List<Tweet> getUserTimelineUpdates() {
+        return userTimelineUpdates;
+    }
+
+    @Override
+    public List<Tweet> getUserTimelineMore() {
+        return userTimelineMore;
+    }
+
+    @Override
     public void onRxAction(RxAction action) {
         switch (action.getType()) {
             case Actions.GET_HOME_TIMELINE:
-                // put received tweets to the map
+                // store received tweets
                 homeTimeline = new ArrayList<>();
                 homeTimeline.addAll(action.get(Keys.RESULT_GET_HOME_TIMELINE));
                 break;
@@ -58,6 +76,23 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
                 homeTimelineMore = action.get(Keys.RESULT_GET_HOME_TIMELINE_MORE);
                 // append new tweets to homeTimeline
                 homeTimeline.addAll(homeTimelineMore);
+                break;
+            case Actions.GET_USER_TIMELINE:
+                // store received tweets
+                userTimeline = new ArrayList<>();
+                userTimeline.addAll(action.get(Keys.RESULT_GET_USER_TIMELINE));
+                break;
+            case Actions.GET_USER_TIMELINE_UPDATES:
+                // save timeline updates
+                userTimelineUpdates = action.get(Keys.RESULT_GET_USER_TIMELINE_UPDATES);
+                // push new tweets to userTimeline
+                userTimeline.addAll(0, userTimelineUpdates);
+                break;
+            case Actions.GET_USER_TIMELINE_MORE:
+                // save result
+                userTimelineMore = action.get(Keys.RESULT_GET_USER_TIMELINE_MORE);
+                // append to userTimeline
+                userTimeline.addAll(userTimelineMore);
                 break;
             default:
                 return;

@@ -1,7 +1,9 @@
 package com.nrgentoo.tweeterstream.view.main;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 
 import com.nrgentoo.tweeterstream.R;
 import com.nrgentoo.tweeterstream.action.Actions;
@@ -20,13 +22,14 @@ public class MainActivity extends AbstractActivity {
     @Inject
     SessionStore sessionStore;
 
-    MainAdapter adapter;
+    private MainAdapter adapter;
 
     // --------------------------------------------------------------------------------------------
     //      UI REFERENCES
     // --------------------------------------------------------------------------------------------
 
-    ViewPager viewPager;
+    private ViewPager viewPager;
+    private TabLayout tab_layout;
 
     // --------------------------------------------------------------------------------------------
     //      LIFECYCLE
@@ -49,7 +52,14 @@ public class MainActivity extends AbstractActivity {
 
         // inflate views
         viewPager = (ViewPager) findViewById(R.id.viewPager);
-        adapter = new MainAdapter(getSupportFragmentManager());
+        adapter = new MainAdapter(getSupportFragmentManager(), getResources());
         viewPager.setAdapter(adapter);
+
+        tab_layout = (TabLayout) findViewById(R.id.tab_layout);
+        tab_layout.setupWithViewPager(viewPager);
+
+        // set tool bar as action bar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 }

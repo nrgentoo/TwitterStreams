@@ -1,4 +1,4 @@
-package com.nrgentoo.tweeterstream.view.hometimeline;
+package com.nrgentoo.tweeterstream.view.abstracttimeline;
 
 import android.support.annotation.Nullable;
 
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * View interface for home timeline
  */
-public interface HomeView {
+public interface TimelineView {
 
     void showProgress();
 

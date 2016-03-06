@@ -153,4 +153,77 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                     removeRxAction(action);
                 }));
     }
+
+    @Override
+    public void getUserTimeline() {
+        final RxAction action = newRxAction(GET_USER_TIMELINE);
+        if (hasRxAction(action)) return;
+
+        Observable<List<Tweet>> tweetsObservable;
+
+        if (timelineStore.getHomeTimeline() != null) {
+            // return from memory
+            tweetsObservable = Observable.just(timelineStore.getUserTimeline());
+        } else {
+            // get from api
+            tweetsObservable = apiLazy.get().getCustomService().getUserTimeline(null, null,
+                    TWEETS_COUNT, null, null, false, false, true, true);
+        }
+
+        addRxAction(action, tweetsObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tweets -> {
+                    action.getData().put(Keys.RESULT_GET_USER_TIMELINE, tweets);
+                    postRxAction(action);
+                    removeRxAction(action);
+                }, throwable -> {
+                    // post error
+                    postError(action, throwable);
+                    removeRxAction(action);
+                }));
+    }
+
+    @Override
+    public void getUserTimelineUpdates(long sinceId) {
+        final RxAction action = newRxAction(GET_USER_TIMELINE_UPDATES,
+                Keys.PARAM_SINCE_ID, sinceId);
+        if (hasRxAction(action)) return;
+
+        addRxAction(action, updateTimelineService.getUserTimelineUpdates(sinceId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tweets -> {
+                    // post action with result
+                    action.getData().put(Keys.RESULT_GET_USER_TIMELINE_UPDATES, tweets);
+                    postRxAction(action);
+                    removeRxAction(action);
+                }, throwable -> {
+                    // post error
+                    postError(action, throwable);
+                    removeRxAction(action);
+                }));
+    }
+
+    @Override
+    public void getUserTimelineMore(long maxId) {
+        final RxAction action = newRxAction(GET_USER_TIMELINE_MORE,
+                Keys.PARAM_MAX_ID, maxId);
+        if (hasRxAction(action)) return;
+
+        addRxAction(action, apiLazy.get().getCustomService().getUserTimeline(null, null, 200, null,
+                maxId, false, false, true, true)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tweets -> {
+                    // post action with result
+                    action.getData().put(Keys.RESULT_GET_USER_TIMELINE_MORE, tweets);
+                    postRxAction(action);
+                    removeRxAction(action);
+                }, throwable -> {
+                    // post error
+                    postError(action, throwable);
+                    removeRxAction(action);
+                }));
+    }
 }
