@@ -1,7 +1,5 @@
 package com.nrgentoo.tweeterstream.store;
 
-import android.support.annotation.Nullable;
-
 import com.hardsoftstudio.rxflux.action.RxAction;
 import com.hardsoftstudio.rxflux.dispatcher.Dispatcher;
 import com.hardsoftstudio.rxflux.store.RxStore;
@@ -10,18 +8,15 @@ import com.nrgentoo.tweeterstream.action.Actions;
 import com.nrgentoo.tweeterstream.action.Keys;
 import com.twitter.sdk.android.core.models.Tweet;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@link TimelineStore} implementation
  */
 public class TimelineStoreImpl extends RxStore implements TimelineStore {
 
-    private static final String EMPTY_KEY = "empty_key";
-
-    Map<String, List<Tweet>> homeTimelineMap = new HashMap<>();
+    List<Tweet> homeTimeline;
     List<Tweet> homeTimelineUpdates;
 
     public TimelineStoreImpl(Dispatcher dispatcher) {
@@ -29,8 +24,8 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     }
 
     @Override
-    public List<Tweet> getHomeTimeline(@Nullable Long sinceId, @Nullable Long maxId) {
-        return homeTimelineMap.get(getKey(sinceId, maxId));
+    public List<Tweet> getHomeTimeline() {
+        return homeTimeline;
     }
 
     @Override
@@ -42,28 +37,20 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     public void onRxAction(RxAction action) {
         switch (action.getType()) {
             case Actions.GET_HOME_TIMELINE:
-                Long sinceId = action.get(Keys.PARAM_SINCE_ID);
-                Long maxId = action.get(Keys.PARAM_MAX_ID);
-                List<Tweet> tweets = action.get(Keys.RESULT_GET_HOME_TIMELINE);
-
                 // put received tweets to the map
-                homeTimelineMap.put(getKey(sinceId, maxId), tweets);
+                homeTimeline = new ArrayList<>();
+                homeTimeline.addAll(action.get(Keys.RESULT_GET_HOME_TIMELINE));
                 break;
             case Actions.GET_HOME_TIMELINE_UPDATES:
+                // save timeline updates
                 homeTimelineUpdates = action.get(Keys.RESULT_GET_HOME_TIMELINE_UPDATES);
+                // push new tweets to homeTimeline
+                homeTimeline.addAll(0, homeTimelineUpdates);
                 break;
             default:
                 return;
         }
 
         postChange(new RxStoreChange(ID, action));
-    }
-
-    private String getKey(@Nullable Long sinceId, @Nullable Long maxId) {
-        if (sinceId == null && maxId == null) {
-            return EMPTY_KEY;
-        } else {
-            return "since_id: " + sinceId + "; max_id: " + maxId;
-        }
     }
 }

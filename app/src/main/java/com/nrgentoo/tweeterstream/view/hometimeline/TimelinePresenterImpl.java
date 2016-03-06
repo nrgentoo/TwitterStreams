@@ -1,7 +1,5 @@
 package com.nrgentoo.tweeterstream.view.hometimeline;
 
-import android.support.v4.app.FragmentActivity;
-
 import com.hardsoftstudio.rxflux.action.RxError;
 import com.hardsoftstudio.rxflux.store.RxStoreChange;
 import com.nrgentoo.tweeterstream.action.Actions;
@@ -62,7 +60,7 @@ public class TimelinePresenterImpl implements TimelinePresenter {
         eventBus.register(this);
 
         // get tweets
-        actions.getTimeLine(null, null);
+        actions.getHomeTimeline();
         homeView.showProgress();
     }
 
@@ -92,7 +90,7 @@ public class TimelinePresenterImpl implements TimelinePresenter {
                         Long sinceId = change.getRxAction().get(Keys.PARAM_SINCE_ID);
                         Long maxId = change.getRxAction().get(Keys.PARAM_MAX_ID);
 
-                        List<Tweet> tweets = timelineStore.getHomeTimeline(sinceId, maxId);
+                        List<Tweet> tweets = timelineStore.getHomeTimeline();
 
                         if (sinceId == null && maxId == null) {
                             // initial request, just set tweets

@@ -25,7 +25,7 @@ public interface Actions {
 
     void saveSession(TwitterSession session);
 
-    void getTimeLine(@Nullable Long sinceId, @Nullable Long maxId);
+    void getHomeTimeline();
 
     void getHomeTimelineUpdates(long sinceId);
 }

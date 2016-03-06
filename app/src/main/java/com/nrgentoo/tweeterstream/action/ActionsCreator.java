@@ -10,6 +10,7 @@ import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
 import com.nrgentoo.tweeterstream.network.CustomService;
 import com.nrgentoo.tweeterstream.network.TwitterApi;
+import com.nrgentoo.tweeterstream.store.TimelineStore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
 
@@ -41,6 +42,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
 
     @Inject
     UpdateTimelineService updateTimelineService;
+
+    @Inject
+    TimelineStore timelineStore;
 
     // --------------------------------------------------------------------------------------------
     //      CONSTRUCTOR
@@ -76,18 +80,23 @@ public class ActionsCreator extends RxActionCreator implements Actions {
     }
 
     @Override
-    public void getTimeLine(@Nullable Long sinceId, @Nullable Long maxId) {
+    public void getHomeTimeline() {
         final RxAction action = newRxAction(GET_HOME_TIMELINE,
                 Keys.PARAM_COUNT, TWEETS_COUNT);
-
-        if (sinceId != null) action.getData().put(Keys.PARAM_SINCE_ID, sinceId);
-        if (maxId != null) action.getData().put(Keys.PARAM_MAX_ID, maxId);
-
         if (hasRxAction(action)) return;
 
-        addRxAction(action, apiLazy.get().getCustomService().getHomeTimeline(TWEETS_COUNT, sinceId,
-                maxId, false, false, true, true)
-                .delay(3, TimeUnit.SECONDS)
+        Observable<List<Tweet>> tweetsObservable;
+
+        if (timelineStore.getHomeTimeline() != null) {
+            // return from memory
+            tweetsObservable = Observable.just(timelineStore.getHomeTimeline());
+        } else {
+            // get from api
+            tweetsObservable = apiLazy.get().getCustomService().getHomeTimeline(TWEETS_COUNT, null,
+                    null, false, false, true, true);
+        }
+
+        addRxAction(action, tweetsObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {

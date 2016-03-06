@@ -13,7 +13,7 @@ public interface TimelineStore {
 
     String ID = "TimelineStore";
 
-    List<Tweet> getHomeTimeline(@Nullable Long sinceId, @Nullable Long maxId);
+    List<Tweet> getHomeTimeline();
 
     List<Tweet> getHomeTimelineUpdates();
 }
