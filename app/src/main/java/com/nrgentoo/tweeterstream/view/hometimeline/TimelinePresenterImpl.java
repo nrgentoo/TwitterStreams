@@ -3,10 +3,11 @@ package com.nrgentoo.tweeterstream.view.hometimeline;
 import com.hardsoftstudio.rxflux.action.RxError;
 import com.hardsoftstudio.rxflux.store.RxStoreChange;
 import com.nrgentoo.tweeterstream.action.Actions;
-import com.nrgentoo.tweeterstream.action.Keys;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ActivityComponent;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
+import com.nrgentoo.tweeterstream.view.abstracttimeline.TimelinePresenter;
+import com.nrgentoo.tweeterstream.view.abstracttimeline.TinelineView;
 import com.twitter.sdk.android.core.models.Tweet;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class TimelinePresenterImpl implements TimelinePresenter {
     //      FIELDS
     // --------------------------------------------------------------------------------------------
 
-    private HomeView homeView;
+    private TinelineView tinelineView;
 
     @Inject
     EventBus eventBus;
@@ -43,11 +44,11 @@ public class TimelinePresenterImpl implements TimelinePresenter {
     // --------------------------------------------------------------------------------------------
 
     public TimelinePresenterImpl(HasComponent<ActivityComponent> hasActivityComponent,
-                                 HomeView homeView) {
+                                 TinelineView tinelineView) {
         // inject
         hasActivityComponent.getComponent().inject(this);
 
-        this.homeView = homeView;
+        this.tinelineView = tinelineView;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -61,7 +62,7 @@ public class TimelinePresenterImpl implements TimelinePresenter {
 
         // get tweets
         actions.getHomeTimeline();
-        homeView.showProgress();
+        tinelineView.showProgress();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class TimelinePresenterImpl implements TimelinePresenter {
         // unregister event bus
         eventBus.unregister(this);
 
-        homeView = null;
+        tinelineView = null;
     }
 
     @Override
@@ -95,19 +96,19 @@ public class TimelinePresenterImpl implements TimelinePresenter {
                         List<Tweet> tweets = timelineStore.getHomeTimeline();
 
                         // initial request, just set tweets
-                        homeView.setItems(tweets);
+                        tinelineView.setItems(tweets);
 
                         // get top and bottom ids
                         this.topId = tweets.get(0).id;
                         this.bottomId = tweets.get(tweets.size() - 1).id;
 
-                        homeView.hideProgress();
+                        tinelineView.hideProgress();
                         break;
                     case Actions.GET_HOME_TIMELINE_UPDATES:
                         // timeline updates received
                         tweets = timelineStore.getHomeTimelineUpdates();
-                        homeView.addItems(true, tweets);
-                        homeView.hideProgress();
+                        tinelineView.addItems(true, tweets);
+                        tinelineView.hideProgress();
 
                         // update top id
                         this.topId = tweets.get(0).id;
@@ -115,8 +116,8 @@ public class TimelinePresenterImpl implements TimelinePresenter {
                     case Actions.GET_HOME_TIMELINE_MORE:
                         // more timeline data received, append to the end of list
                         tweets = timelineStore.getHomeTimelineMore();
-                        homeView.addItems(false, tweets);
-                        homeView.hideProgress();
+                        tinelineView.addItems(false, tweets);
+                        tinelineView.hideProgress();
 
                         // update bottom id
                         this.bottomId = tweets.get(tweets.size() - 1).id;
@@ -130,13 +131,13 @@ public class TimelinePresenterImpl implements TimelinePresenter {
     public void onEvent(RxError error) {
         switch (error.getAction().getType()) {
             case Actions.GET_HOME_TIMELINE:
-                homeView.hideProgress();
+                tinelineView.hideProgress();
                 break;
             case Actions.GET_HOME_TIMELINE_UPDATES:
-                homeView.hideProgress();
+                tinelineView.hideProgress();
                 break;
             case Actions.GET_HOME_TIMELINE_MORE:
-                homeView.hideProgress();
+                tinelineView.hideProgress();
                 break;
         }
     }
