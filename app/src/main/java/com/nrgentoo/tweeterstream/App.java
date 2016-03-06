@@ -11,6 +11,8 @@ import com.nrgentoo.tweeterstream.common.di.component.DaggerApplicationComponent
 import com.nrgentoo.tweeterstream.common.di.module.ApplicationModule;
 import com.nrgentoo.tweeterstream.store.SessionStore;
 import com.nrgentoo.tweeterstream.store.SessionStoreImpl;
+import com.nrgentoo.tweeterstream.store.TimelineStore;
+import com.nrgentoo.tweeterstream.store.TimelineStoreImpl;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -37,9 +39,15 @@ public class App extends Application implements HasComponent<ApplicationComponen
     @Inject
     SessionStore sessionStore;
 
+    @Inject
+    TimelineStore timelineStore;
+
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
-    private static final String TWITTER_KEY = "39o3m8YZ8TuR3VEjZnXDhNKCX";
-    private static final String TWITTER_SECRET = "cDqpQ5cqUu6AF3qwKFBhGElJDsEg8CrMsOVomsICWNf6UDhppY";
+//    private static final String TWITTER_KEY = "39o3m8YZ8TuR3VEjZnXDhNKCX";
+//    private static final String TWITTER_SECRET = "cDqpQ5cqUu6AF3qwKFBhGElJDsEg8CrMsOVomsICWNf6UDhppY";
+
+    private static final String TWITTER_KEY = "utPdjPaAf3uqaJ5p6xkKvgST2";
+    private static final String TWITTER_SECRET = "EDWhWc3E7nMcdyIEChPGwVh49y2DfATzmm6tq0MYf04fuX1m0z";
 
     private ApplicationComponent applicationComponent;
 
@@ -104,5 +112,6 @@ public class App extends Application implements HasComponent<ApplicationComponen
     public void onRxStoresRegister() {
         // register stores
         ((SessionStoreImpl) sessionStore).register();
+        ((TimelineStoreImpl) timelineStore).register();
     }
 }

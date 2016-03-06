@@ -1,9 +1,13 @@
-package com.nrgentoo.tweeterstream.view;
+package com.nrgentoo.tweeterstream.view.main;
 
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 
 import com.nrgentoo.tweeterstream.R;
+import com.nrgentoo.tweeterstream.action.Actions;
 import com.nrgentoo.tweeterstream.store.SessionStore;
+import com.nrgentoo.tweeterstream.view.AbstractActivity;
+import com.nrgentoo.tweeterstream.view.LoginActivity;
 
 import javax.inject.Inject;
 
@@ -15,6 +19,14 @@ public class MainActivity extends AbstractActivity {
 
     @Inject
     SessionStore sessionStore;
+
+    MainAdapter adapter;
+
+    // --------------------------------------------------------------------------------------------
+    //      UI REFERENCES
+    // --------------------------------------------------------------------------------------------
+
+    ViewPager viewPager;
 
     // --------------------------------------------------------------------------------------------
     //      LIFECYCLE
@@ -34,5 +46,10 @@ public class MainActivity extends AbstractActivity {
         }
 
         setContentView(R.layout.activity_main);
+
+        // inflate views
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        adapter = new MainAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
     }
 }

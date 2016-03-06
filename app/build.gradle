@@ -59,4 +59,14 @@ dependencies {
 
     // event bus
     compile 'de.greenrobot:eventbus:2.4.0'
+
+    // Picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+
+    // android libs
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:support-v4:23.2.0'
+    compile 'com.android.support:cardview-v7:23.2.0'
 }
