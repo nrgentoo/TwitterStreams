@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import com.nrgentoo.tweeterstream.App;
 import com.nrgentoo.tweeterstream.action.Actions;
 import com.nrgentoo.tweeterstream.action.ActionsCreator;
+import com.nrgentoo.tweeterstream.action.UpdateTimelineService;
 import com.nrgentoo.tweeterstream.common.TwitterRxFlux;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
@@ -79,5 +80,11 @@ public class ApplicationModule {
     @Provides
     TimelineStore provideTimelineStore() {
         return new TimelineStoreImpl(rxFlux.getDispatcher());
+    }
+
+    @Singleton
+    @Provides
+    UpdateTimelineService provideUpdateTimelineService() {
+        return new UpdateTimelineService(app);
     }
 }

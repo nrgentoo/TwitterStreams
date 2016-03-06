@@ -74,6 +74,11 @@ public class TimelineAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
+    public void addTweets(boolean atTop, List<Tweet> tweets) {
+        items.addAll(0, tweets);
+        notifyItemRangeInserted(0, tweets.size());
+    }
+
     // --------------------------------------------------------------------------------------------
     //      VIEW HOLDER
     // --------------------------------------------------------------------------------------------

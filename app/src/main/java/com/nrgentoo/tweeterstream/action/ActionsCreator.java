@@ -8,8 +8,14 @@ import com.hardsoftstudio.rxflux.dispatcher.Dispatcher;
 import com.hardsoftstudio.rxflux.util.SubscriptionManager;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
+import com.nrgentoo.tweeterstream.network.CustomService;
 import com.nrgentoo.tweeterstream.network.TwitterApi;
 import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.models.Tweet;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -17,13 +23,14 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 
 /**
  * Actions creator
  */
 public class ActionsCreator extends RxActionCreator implements Actions {
 
-    private static final int TWEETS_COUNT = 50;
+    private static final int TWEETS_COUNT = 20;
 
     // --------------------------------------------------------------------------------------------
     //      FIELDS
@@ -31,6 +38,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
 
     @Inject
     Lazy<TwitterApi> apiLazy;
+
+    @Inject
+    UpdateTimelineService updateTimelineService;
 
     // --------------------------------------------------------------------------------------------
     //      CONSTRUCTOR
@@ -77,11 +87,33 @@ public class ActionsCreator extends RxActionCreator implements Actions {
 
         addRxAction(action, apiLazy.get().getCustomService().getHomeTimeline(TWEETS_COUNT, sinceId,
                 maxId, false, false, true, true)
+                .delay(3, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE, tweets);
+                    postRxAction(action);
+                    removeRxAction(action);
+                }, throwable -> {
+                    // post error
+                    postError(action, throwable);
+                    removeRxAction(action);
+                }));
+    }
+
+    @Override
+    public void getHomeTimelineUpdates(long sinceId) {
+        final RxAction action = newRxAction(GET_HOME_TIMELINE_UPDATES,
+                Keys.PARAM_SINCE_ID, sinceId);
+        if (hasRxAction(action)) return;
+
+        addRxAction(action, updateTimelineService.getHomeTimelineUpdates(sinceId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tweets -> {
+                    // post action with result
+                    action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_UPDATES, tweets);
                     postRxAction(action);
                     removeRxAction(action);
                 }, throwable -> {

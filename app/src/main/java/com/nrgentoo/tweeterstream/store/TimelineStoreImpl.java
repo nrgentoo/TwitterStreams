@@ -22,6 +22,7 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     private static final String EMPTY_KEY = "empty_key";
 
     Map<String, List<Tweet>> homeTimelineMap = new HashMap<>();
+    List<Tweet> homeTimelineUpdates;
 
     public TimelineStoreImpl(Dispatcher dispatcher) {
         super(dispatcher);
@@ -30,6 +31,11 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     @Override
     public List<Tweet> getHomeTimeline(@Nullable Long sinceId, @Nullable Long maxId) {
         return homeTimelineMap.get(getKey(sinceId, maxId));
+    }
+
+    @Override
+    public List<Tweet> getHomeTimelineUpdates() {
+        return homeTimelineUpdates;
     }
 
     @Override
@@ -43,6 +49,9 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
                 // put received tweets to the map
                 homeTimelineMap.put(getKey(sinceId, maxId), tweets);
                 break;
+            case Actions.GET_HOME_TIMELINE_UPDATES:
+                homeTimelineUpdates = action.get(Keys.RESULT_GET_HOME_TIMELINE_UPDATES);
+                break;
             default:
                 return;
         }
@@ -54,7 +63,7 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
         if (sinceId == null && maxId == null) {
             return EMPTY_KEY;
         } else {
-            return "since_id: " + sinceId + "; max_id" + maxId;
+            return "since_id: " + sinceId + "; max_id: " + maxId;
         }
     }
 }

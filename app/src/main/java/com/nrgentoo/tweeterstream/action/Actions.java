@@ -17,6 +17,7 @@ public interface Actions {
 
     String SAVE_SESSION = "save_session";
     String GET_HOME_TIMELINE = "get_home_timeline";
+    String GET_HOME_TIMELINE_UPDATES = "get_home_timeline_updates";
 
     // --------------------------------------------------------------------------------------------
     //      METHODS
@@ -25,4 +26,6 @@ public interface Actions {
     void saveSession(TwitterSession session);
 
     void getTimeLine(@Nullable Long sinceId, @Nullable Long maxId);
+
+    void getHomeTimelineUpdates(long sinceId);
 }

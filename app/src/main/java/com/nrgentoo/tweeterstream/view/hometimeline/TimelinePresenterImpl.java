@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import com.hardsoftstudio.rxflux.action.RxError;
 import com.hardsoftstudio.rxflux.store.RxStoreChange;
 import com.nrgentoo.tweeterstream.action.Actions;
+import com.nrgentoo.tweeterstream.action.Keys;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ActivityComponent;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
@@ -35,6 +36,9 @@ public class TimelinePresenterImpl implements TimelinePresenter {
 
     @Inject
     TimelineStore timelineStore;
+
+    long topId;
+    long bottomId;
 
     // --------------------------------------------------------------------------------------------
     //      CONSTRUCTOR
@@ -70,6 +74,11 @@ public class TimelinePresenterImpl implements TimelinePresenter {
         homeView = null;
     }
 
+    @Override
+    public void getUpdates() {
+        actions.getHomeTimelineUpdates(topId);
+    }
+
     // --------------------------------------------------------------------------------------------
     //      RX FLUX EVENTS
     // --------------------------------------------------------------------------------------------
@@ -80,8 +89,31 @@ public class TimelinePresenterImpl implements TimelinePresenter {
             case TimelineStore.ID:
                 switch (change.getRxAction().getType()) {
                     case Actions.GET_HOME_TIMELINE:
-                        List<Tweet> tweets = timelineStore.getHomeTimeline(null, null);
-                        homeView.setItems(tweets);
+                        Long sinceId = change.getRxAction().get(Keys.PARAM_SINCE_ID);
+                        Long maxId = change.getRxAction().get(Keys.PARAM_MAX_ID);
+
+                        List<Tweet> tweets = timelineStore.getHomeTimeline(sinceId, maxId);
+
+                        if (sinceId == null && maxId == null) {
+                            // initial request, just set tweets
+                            homeView.setItems(tweets);
+
+                            // get top and bottom ids
+                            this.topId = tweets.get(0).id;
+                            this.bottomId = tweets.get(tweets.size() - 1).id;
+                        } else if (maxId != null){
+                            // request for more tweets, add to bottom
+                            homeView.addItems(false, tweets);
+
+                            // get bottom id
+                            this.bottomId = tweets.get(tweets.size() - 1).id;
+                        }
+
+                        homeView.hideProgress();
+                        break;
+                    case Actions.GET_HOME_TIMELINE_UPDATES:
+                        // timeline updates received
+                        homeView.addItems(true, timelineStore.getHomeTimelineUpdates());
                         homeView.hideProgress();
                         break;
                 }
@@ -93,6 +125,9 @@ public class TimelinePresenterImpl implements TimelinePresenter {
     public void onEvent(RxError error) {
         switch (error.getAction().getType()) {
             case Actions.GET_HOME_TIMELINE:
+                homeView.hideProgress();
+                break;
+            case Actions.GET_HOME_TIMELINE_UPDATES:
                 homeView.hideProgress();
                 break;
         }
