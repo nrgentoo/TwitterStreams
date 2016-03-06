@@ -97,9 +97,9 @@ abstract public class AbstractTimelineFragment extends Fragment implements Timel
 
     @Override
     public void hideProgress() {
-        swipeRefreshLayout.post(() -> {
+        swipeRefreshLayout.postDelayed(() -> {
             swipeRefreshLayout.setRefreshing(false);
-        });
+        }, 100);
 
         adapter.hideProgress();
     }
