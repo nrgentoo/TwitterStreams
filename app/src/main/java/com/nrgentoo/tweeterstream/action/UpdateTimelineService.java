@@ -47,6 +47,11 @@ public class UpdateTimelineService {
         return flatten(call).toList();
     }
 
+    public Observable<List<Tweet>> getUserTimelineUpdates(long sinceId) {
+        Observable<TimelineResponse> call = createUserTimelineCall(sinceId, null);
+        return flatten(call).toList();
+    }
+
     // --------------------------------------------------------------------------------------------
     //      PRIVATE METHODS
     // --------------------------------------------------------------------------------------------
@@ -62,7 +67,22 @@ public class UpdateTimelineService {
                 .flatMap(tweets -> {
                     if (!tweets.isEmpty()) {
                         long newMaxId = tweets.get(tweets.size() - 1).id - 1;
-                        return Observable.just(new TimelineResponse(tweets, createHomeTimelineCall(sinceId, newMaxId)));
+                        return Observable.just(new TimelineResponse(tweets,
+                                createHomeTimelineCall(sinceId, newMaxId)));
+                    } else {
+                        return Observable.just(new TimelineResponse(tweets, null));
+                    }
+                });
+    }
+
+    private Observable<TimelineResponse> createUserTimelineCall(long sinceId, @Nullable Long maxId) {
+        CustomService customService = apiLazy.get().getCustomService();
+        return customService.getUserTimeline(null, null, 200, sinceId, maxId, false, false, true, true)
+                .flatMap(tweets -> {
+                    if (!tweets.isEmpty()) {
+                        long newMaxId = tweets.get(tweets.size() - 1).id - 1;
+                        return Observable.just(new TimelineResponse(tweets,
+                                createUserTimelineCall(sinceId, newMaxId)));
                     } else {
                         return Observable.just(new TimelineResponse(tweets, null));
                     }

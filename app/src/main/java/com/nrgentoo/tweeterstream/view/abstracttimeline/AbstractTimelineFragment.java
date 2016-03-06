@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Abstract timeline fragment
  */
-abstract public class AbstractTimelineFragment extends Fragment implements TinelineView {
+abstract public class AbstractTimelineFragment extends Fragment implements TimelineView {
 
     // --------------------------------------------------------------------------------------------
     //      FIELDS
@@ -97,7 +97,9 @@ abstract public class AbstractTimelineFragment extends Fragment implements Tinel
 
     @Override
     public void hideProgress() {
-        swipeRefreshLayout.setRefreshing(false);
+        swipeRefreshLayout.post(() -> {
+            swipeRefreshLayout.setRefreshing(false);
+        });
 
         adapter.hideProgress();
     }

@@ -19,6 +19,9 @@ public interface Actions {
     String GET_HOME_TIMELINE = "get_home_timeline";
     String GET_HOME_TIMELINE_UPDATES = "get_home_timeline_updates";
     String GET_HOME_TIMELINE_MORE = "get_home_timeline_more";
+    String GET_USER_TIMELINE = "get_user_timeline";
+    String GET_USER_TIMELINE_UPDATES = "get_user_timeline_updates";
+    String GET_USER_TIMELINE_MORE = "get_user_timeline_more";
 
     // --------------------------------------------------------------------------------------------
     //      METHODS
@@ -31,4 +34,10 @@ public interface Actions {
     void getHomeTimelineUpdates(long sinceId);
 
     void getHomeTimelineMore(long maxId);
+
+    void getUserTimeline();
+
+    void getUserTimelineUpdates(long sinceId);
+
+    void getUserTimelineMore(long maxId);
 }

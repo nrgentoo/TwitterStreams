@@ -6,80 +6,42 @@ import com.nrgentoo.tweeterstream.action.Actions;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ActivityComponent;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
-import com.nrgentoo.tweeterstream.view.abstracttimeline.TimelinePresenter;
-import com.nrgentoo.tweeterstream.view.abstracttimeline.TinelineView;
+import com.nrgentoo.tweeterstream.view.abstracttimeline.AbstractPresenter;
+import com.nrgentoo.tweeterstream.view.abstracttimeline.TimelineView;
 import com.twitter.sdk.android.core.models.Tweet;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
-import de.greenrobot.event.EventBus;
-
 /**
  * Timeline presenter implementation
  */
-public class TimelinePresenterImpl implements TimelinePresenter {
-
-    // --------------------------------------------------------------------------------------------
-    //      FIELDS
-    // --------------------------------------------------------------------------------------------
-
-    private TinelineView tinelineView;
-
-    @Inject
-    EventBus eventBus;
-
-    @Inject
-    Actions actions;
-
-    @Inject
-    TimelineStore timelineStore;
-
-    long topId;
-    long bottomId;
+public class HomeTimelinePresenter extends AbstractPresenter {
 
     // --------------------------------------------------------------------------------------------
     //      CONSTRUCTOR
     // --------------------------------------------------------------------------------------------
 
-    public TimelinePresenterImpl(HasComponent<ActivityComponent> hasActivityComponent,
-                                 TinelineView tinelineView) {
-        // inject
-        hasActivityComponent.getComponent().inject(this);
-
-        this.tinelineView = tinelineView;
+    public HomeTimelinePresenter(HasComponent<ActivityComponent> hasActivityComponent,
+                                 TimelineView timelineView) {
+        super(hasActivityComponent, timelineView);
     }
 
     // --------------------------------------------------------------------------------------------
-    //      PUBLIC METHODS
+    //      PROTECTED METHODS
     // --------------------------------------------------------------------------------------------
 
     @Override
-    public void onCreate() {
-        // register event bus
-        eventBus.register(this);
-
-        // get tweets
+    protected void getTimeline() {
         actions.getHomeTimeline();
-        tinelineView.showProgress();
     }
 
     @Override
-    public void onDestroy() {
-        // unregister event bus
-        eventBus.unregister(this);
-
-        tinelineView = null;
-    }
-
-    @Override
-    public void getUpdates() {
+    protected void getTimelineUpdates() {
         actions.getHomeTimelineUpdates(topId);
     }
 
     @Override
-    public void loadMore() {
+    protected void getTimelineMore() {
         actions.getHomeTimelineMore(bottomId - 1);
     }
 
@@ -96,31 +58,39 @@ public class TimelinePresenterImpl implements TimelinePresenter {
                         List<Tweet> tweets = timelineStore.getHomeTimeline();
 
                         // initial request, just set tweets
-                        tinelineView.setItems(tweets);
+                        timelineView.setItems(tweets);
 
                         // get top and bottom ids
                         this.topId = tweets.get(0).id;
                         this.bottomId = tweets.get(tweets.size() - 1).id;
 
-                        tinelineView.hideProgress();
+                        timelineView.hideProgress();
                         break;
                     case Actions.GET_HOME_TIMELINE_UPDATES:
                         // timeline updates received
                         tweets = timelineStore.getHomeTimelineUpdates();
-                        tinelineView.addItems(true, tweets);
-                        tinelineView.hideProgress();
 
-                        // update top id
-                        this.topId = tweets.get(0).id;
+                        if (!tweets.isEmpty()) {
+                            timelineView.addItems(true, tweets);
+
+                            // update top id
+                            this.topId = tweets.get(0).id;
+                        }
+
+                        timelineView.hideProgress();
                         break;
                     case Actions.GET_HOME_TIMELINE_MORE:
                         // more timeline data received, append to the end of list
                         tweets = timelineStore.getHomeTimelineMore();
-                        tinelineView.addItems(false, tweets);
-                        tinelineView.hideProgress();
 
-                        // update bottom id
-                        this.bottomId = tweets.get(tweets.size() - 1).id;
+                        if (!tweets.isEmpty()) {
+                            timelineView.addItems(false, tweets);
+
+                            // update bottom id
+                            this.bottomId = tweets.get(tweets.size() - 1).id;
+                        }
+
+                        timelineView.hideProgress();
                         break;
                 }
                 break;
@@ -131,13 +101,13 @@ public class TimelinePresenterImpl implements TimelinePresenter {
     public void onEvent(RxError error) {
         switch (error.getAction().getType()) {
             case Actions.GET_HOME_TIMELINE:
-                tinelineView.hideProgress();
+                timelineView.hideProgress();
                 break;
             case Actions.GET_HOME_TIMELINE_UPDATES:
-                tinelineView.hideProgress();
+                timelineView.hideProgress();
                 break;
             case Actions.GET_HOME_TIMELINE_MORE:
-                tinelineView.hideProgress();
+                timelineView.hideProgress();
                 break;
         }
     }

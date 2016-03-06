@@ -7,13 +7,14 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.nrgentoo.tweeterstream.R;
 import com.nrgentoo.tweeterstream.view.hometimeline.HomeTimeLineFragment;
+import com.nrgentoo.tweeterstream.view.usertimeline.UserTimelineFragment;
 
 /**
  * Main view pager adapter
  */
 public class MainAdapter extends FragmentStatePagerAdapter {
 
-    private static final int COUNT = 1;
+    private static final int COUNT = 2;
     Resources resources;
 
     // --------------------------------------------------------------------------------------------
@@ -34,6 +35,8 @@ public class MainAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 return new HomeTimeLineFragment();
+            case 1:
+                return new UserTimelineFragment();
             default:
                 throw new IllegalArgumentException("Index out of bounds: position" + position +
                         " of size " + COUNT);
@@ -50,6 +53,8 @@ public class MainAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 return resources.getString(R.string.title_home_timeline);
+            case 1:
+                return resources.getString(R.string.title_user_timeline);
             default:
                 throw new IllegalArgumentException("Index out of bounds: position" + position +
                         " of size " + COUNT);

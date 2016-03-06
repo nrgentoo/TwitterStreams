@@ -18,4 +18,10 @@ public interface TimelineStore {
     List<Tweet> getHomeTimelineUpdates();
 
     List<Tweet> getHomeTimelineMore();
+
+    List<Tweet> getUserTimeline();
+
+    List<Tweet> getUserTimelineUpdates();
+
+    List<Tweet> getUserTimelineMore();
 }

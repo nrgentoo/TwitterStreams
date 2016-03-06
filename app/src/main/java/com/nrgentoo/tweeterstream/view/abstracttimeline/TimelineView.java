@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * View interface for home timeline
  */
-public interface TinelineView {
+public interface TimelineView {
 
     void showProgress();
 
