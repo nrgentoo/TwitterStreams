@@ -9,6 +9,7 @@ import com.hardsoftstudio.rxflux.store.RxStoreChange;
 import com.nrgentoo.tweeterstream.R;
 import com.nrgentoo.tweeterstream.action.Actions;
 import com.nrgentoo.tweeterstream.store.SessionStore;
+import com.nrgentoo.tweeterstream.view.main.MainActivity;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;

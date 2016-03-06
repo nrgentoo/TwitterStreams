@@ -11,8 +11,11 @@ import com.nrgentoo.tweeterstream.action.ActionsCreator;
 import com.nrgentoo.tweeterstream.common.TwitterRxFlux;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
+import com.nrgentoo.tweeterstream.network.TwitterApi;
 import com.nrgentoo.tweeterstream.store.SessionStore;
 import com.nrgentoo.tweeterstream.store.SessionStoreImpl;
+import com.nrgentoo.tweeterstream.store.TimelineStore;
+import com.nrgentoo.tweeterstream.store.TimelineStoreImpl;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -29,6 +32,7 @@ public class ApplicationModule {
 
     private final App app;
     private final TwitterRxFlux rxFlux;
+    private SessionStore sessionStore;
 
     public ApplicationModule(App application) {
         this.app = application;
@@ -47,7 +51,10 @@ public class ApplicationModule {
     @Singleton
     @Provides
     SessionStore provideSessionStore() {
-        return new SessionStoreImpl(rxFlux.getDispatcher(), app);
+        if (sessionStore == null) {
+            sessionStore = new SessionStoreImpl(rxFlux.getDispatcher(), app);
+        }
+        return sessionStore;
     }
 
     @Singleton
@@ -59,6 +66,18 @@ public class ApplicationModule {
     @Singleton
     @Provides
     Actions provideActions() {
-        return new ActionsCreator(rxFlux.getDispatcher(), rxFlux.getSubscriptionManager());
+        return new ActionsCreator(app, rxFlux.getDispatcher(), rxFlux.getSubscriptionManager());
+    }
+
+    @Singleton
+    @Provides
+    TwitterApi provideTwitterApi() {
+        return new TwitterApi(sessionStore.getSession());
+    }
+
+    @Singleton
+    @Provides
+    TimelineStore provideTimelineStore() {
+        return new TimelineStoreImpl(rxFlux.getDispatcher());
     }
 }
