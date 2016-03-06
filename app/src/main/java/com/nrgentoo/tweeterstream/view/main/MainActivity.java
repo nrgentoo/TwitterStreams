@@ -46,6 +46,7 @@ public class MainActivity extends AbstractActivity {
         if (sessionStore.getSession() == null) {
             // launch login activity
             LoginActivity.launch(this);
+            return;
         }
 
         setContentView(R.layout.activity_main);
