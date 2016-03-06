@@ -72,7 +72,8 @@ public class HomeTimeLineFragment extends Fragment implements HomeView {
         super.onResume();
 
         // set listeners
-        swipeRefreshLayout.setOnRefreshListener(this::onRefresh);
+        swipeRefreshLayout.setOnRefreshListener(timelinePresenter::getUpdates);
+        adapter.setOnLoadMoreListener(() -> timelinePresenter.loadMore());
     }
 
     @Override
@@ -81,14 +82,7 @@ public class HomeTimeLineFragment extends Fragment implements HomeView {
 
         // clear listeners
         swipeRefreshLayout.setOnRefreshListener(null);
-    }
-
-    // --------------------------------------------------------------------------------------------
-    //      PRIVATE METHODS
-    // --------------------------------------------------------------------------------------------
-
-    private void onRefresh() {
-        timelinePresenter.getUpdates();
+        adapter.setOnLoadMoreListener(null);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -109,12 +103,16 @@ public class HomeTimeLineFragment extends Fragment implements HomeView {
         swipeRefreshLayout.post(() -> {
             swipeRefreshLayout.setRefreshing(false);
         });
+
+        adapter.hideProgress();
     }
 
     @Override
     public void addItems(boolean atTop, List<Tweet> tweets) {
         adapter.addTweets(atTop, tweets);
-        rv_timeline.post(() -> rv_timeline.smoothScrollToPosition(0));
+        if (atTop) {
+            rv_timeline.post(() -> rv_timeline.smoothScrollToPosition(0));
+        }
     }
 
     @Override

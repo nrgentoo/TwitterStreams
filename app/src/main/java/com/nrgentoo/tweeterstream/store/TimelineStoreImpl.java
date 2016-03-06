@@ -18,6 +18,7 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
 
     List<Tweet> homeTimeline;
     List<Tweet> homeTimelineUpdates;
+    List<Tweet> homeTimelineMore;
 
     public TimelineStoreImpl(Dispatcher dispatcher) {
         super(dispatcher);
@@ -34,6 +35,11 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     }
 
     @Override
+    public List<Tweet> getHomeTimelineMore() {
+        return homeTimelineMore;
+    }
+
+    @Override
     public void onRxAction(RxAction action) {
         switch (action.getType()) {
             case Actions.GET_HOME_TIMELINE:
@@ -46,6 +52,12 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
                 homeTimelineUpdates = action.get(Keys.RESULT_GET_HOME_TIMELINE_UPDATES);
                 // push new tweets to homeTimeline
                 homeTimeline.addAll(0, homeTimelineUpdates);
+                break;
+            case Actions.GET_HOME_TIMELINE_MORE:
+                // save result to homeTimelineMore
+                homeTimelineMore = action.get(Keys.RESULT_GET_HOME_TIMELINE_MORE);
+                // append new tweets to homeTimeline
+                homeTimeline.addAll(homeTimelineMore);
                 break;
             default:
                 return;

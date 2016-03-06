@@ -18,6 +18,7 @@ public interface Actions {
     String SAVE_SESSION = "save_session";
     String GET_HOME_TIMELINE = "get_home_timeline";
     String GET_HOME_TIMELINE_UPDATES = "get_home_timeline_updates";
+    String GET_HOME_TIMELINE_MORE = "get_home_timeline_more";
 
     // --------------------------------------------------------------------------------------------
     //      METHODS
@@ -28,4 +29,6 @@ public interface Actions {
     void getHomeTimeline();
 
     void getHomeTimelineUpdates(long sinceId);
+
+    void getHomeTimelineMore(long maxId);
 }

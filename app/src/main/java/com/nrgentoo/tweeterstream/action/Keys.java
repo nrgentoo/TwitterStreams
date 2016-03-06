@@ -18,6 +18,7 @@ public interface Keys {
     //      RESULT KEYS
     // --------------------------------------------------------------------------------------------
 
-    String RESULT_GET_HOME_TIMELINE = "result_get_home_timline";
-    String RESULT_GET_HOME_TIMELINE_UPDATES = "result_get_home_timline_updates";
+    String RESULT_GET_HOME_TIMELINE = "result_get_home_timeline";
+    String RESULT_GET_HOME_TIMELINE_UPDATES = "result_get_home_timeline_updates";
+    String RESULT_GET_HOME_TIMELINE_MORE = "result_get_home_timeline_more";
 }

@@ -131,4 +131,26 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                     removeRxAction(action);
                 }));
     }
+
+    @Override
+    public void getHomeTimelineMore(long maxId) {
+        final RxAction action = newRxAction(GET_HOME_TIMELINE_MORE,
+                Keys.PARAM_MAX_ID, maxId);
+        if (hasRxAction(action)) return;
+
+        addRxAction(action, apiLazy.get().getCustomService().getHomeTimeline(200, null, maxId,
+                false, false, true, true)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tweets -> {
+                    // post action with result
+                    action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_MORE, tweets);
+                    postRxAction(action);
+                    removeRxAction(action);
+                }, throwable -> {
+                    // post error
+                    postError(action, throwable);
+                    removeRxAction(action);
+                }));
+    }
 }

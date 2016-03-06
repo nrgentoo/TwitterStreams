@@ -10,4 +10,6 @@ public interface TimelinePresenter {
     void onDestroy();
 
     void getUpdates();
+
+    void loadMore();
 }
