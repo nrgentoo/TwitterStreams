@@ -8,6 +8,7 @@ import com.hardsoftstudio.rxflux.util.SubscriptionManager;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
 import com.nrgentoo.tweeterstream.db.HomeTweetModel;
+import com.nrgentoo.tweeterstream.db.HomeTweetModel_Table;
 import com.nrgentoo.tweeterstream.network.TwitterApi;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -99,6 +100,7 @@ public class ActionsCreator extends RxActionCreator implements Actions {
             tweetsObservable = Observable.defer(() -> {
                 List<HomeTweetModel> tweetModels = SQLite.select()
                         .from(HomeTweetModel.class)
+                        .orderBy(HomeTweetModel_Table.id, false) // order by id, descending
                         .queryList();
 
                 if (!tweetModels.isEmpty()) {
@@ -125,29 +127,7 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
                     // insert to db
-                    List<HomeTweetModel> homeTweetModels = new ArrayList<>();
-                    Gson gson = new Gson();
-
-                    SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss zz yyyy");
-
-                    for (Tweet tweet : tweets) {
-                        try {
-                            long dateMillis = sdf.parse(tweet.createdAt).getTime();
-
-                            String tweetJson = gson.toJson(tweet);
-                            HomeTweetModel homeTweetModel = new HomeTweetModel(tweet.id, dateMillis,
-                                    tweetJson);
-                            homeTweetModels.add(homeTweetModel);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    // add transaction
-                    SaveModelTransaction<HomeTweetModel> transaction =
-                            new SaveModelTransaction<>(ProcessModelInfo.withModels(homeTweetModels));
-                    TransactionManager.getInstance()
-                            .addTransaction(transaction);
+                    insertHomeTweets(tweets);
 
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE, tweets);
@@ -170,6 +150,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
+                    // insert to db
+                    insertHomeTweets(tweets);
+
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_UPDATES, tweets);
                     postRxAction(action);
@@ -192,6 +175,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
+                    // insert to db
+                    insertHomeTweets(tweets);
+
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_MORE, tweets);
                     postRxAction(action);
@@ -282,5 +268,37 @@ public class ActionsCreator extends RxActionCreator implements Actions {
 
         // post action
         postRxAction(action);
+    }
+
+    /**
+     * Insert tweets to local db
+     *
+     * @param tweets list of new tweets
+     */
+    private static void insertHomeTweets(List<Tweet> tweets) {
+        // insert to db
+        List<HomeTweetModel> homeTweetModels = new ArrayList<>();
+        Gson gson = new Gson();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss zz yyyy");
+
+        for (Tweet tweet : tweets) {
+            try {
+                long dateMillis = sdf.parse(tweet.createdAt).getTime();
+
+                String tweetJson = gson.toJson(tweet);
+                HomeTweetModel homeTweetModel = new HomeTweetModel(tweet.id, dateMillis,
+                        tweetJson);
+                homeTweetModels.add(homeTweetModel);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // add transaction
+        SaveModelTransaction<HomeTweetModel> transaction =
+                new SaveModelTransaction<>(ProcessModelInfo.withModels(homeTweetModels));
+        TransactionManager.getInstance()
+                .addTransaction(transaction);
     }
 }
