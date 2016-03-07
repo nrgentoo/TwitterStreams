@@ -226,4 +226,12 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                     removeRxAction(action);
                 }));
     }
+
+    @Override
+    public void logout() {
+        final RxAction action = newRxAction(LOGOUT);
+
+        // post action
+        postRxAction(action);
+    }
 }

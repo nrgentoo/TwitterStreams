@@ -22,6 +22,7 @@ public interface Actions {
     String GET_USER_TIMELINE = "get_user_timeline";
     String GET_USER_TIMELINE_UPDATES = "get_user_timeline_updates";
     String GET_USER_TIMELINE_MORE = "get_user_timeline_more";
+    String LOGOUT = "logout";
 
     // --------------------------------------------------------------------------------------------
     //      METHODS
@@ -40,4 +41,6 @@ public interface Actions {
     void getUserTimelineUpdates(long sinceId);
 
     void getUserTimelineMore(long maxId);
+
+    void logout();
 }

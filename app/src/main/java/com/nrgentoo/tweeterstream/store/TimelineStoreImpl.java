@@ -94,10 +94,23 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
                 // append to userTimeline
                 userTimeline.addAll(userTimelineMore);
                 break;
+            case Actions.LOGOUT:
+                onLogout();
+                break;
             default:
                 return;
         }
 
         postChange(new RxStoreChange(ID, action));
+    }
+
+    private void onLogout() {
+        // clear timelines
+        homeTimeline = null;
+        homeTimelineUpdates = null;
+        homeTimelineMore = null;
+        userTimeline = null;
+        userTimelineUpdates = null;
+        userTimelineMore = null;
     }
 }

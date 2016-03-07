@@ -15,7 +15,6 @@ import com.nrgentoo.tweeterstream.store.TimelineStore;
 import com.nrgentoo.tweeterstream.store.TimelineStoreImpl;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterCore;
 
 import javax.inject.Inject;
 
