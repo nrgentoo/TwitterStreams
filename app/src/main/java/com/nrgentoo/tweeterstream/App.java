@@ -2,6 +2,7 @@ package com.nrgentoo.tweeterstream;
 
 import android.app.Application;
 
+import com.facebook.stetho.Stetho;
 import com.hardsoftstudio.rxflux.action.RxError;
 import com.hardsoftstudio.rxflux.dispatcher.RxViewDispatch;
 import com.hardsoftstudio.rxflux.store.RxStoreChange;
@@ -13,6 +14,7 @@ import com.nrgentoo.tweeterstream.store.SessionStore;
 import com.nrgentoo.tweeterstream.store.SessionStoreImpl;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
 import com.nrgentoo.tweeterstream.store.TimelineStoreImpl;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 
@@ -65,6 +67,12 @@ public class App extends Application implements HasComponent<ApplicationComponen
 
         // inject
         getComponent().inject(this);
+
+        // init dbflow
+        FlowManager.init(this);
+
+        // Stetho
+        Stetho.initializeWithDefaults(this);
 
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
