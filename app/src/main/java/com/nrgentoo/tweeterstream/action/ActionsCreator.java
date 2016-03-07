@@ -7,16 +7,21 @@ import com.hardsoftstudio.rxflux.dispatcher.Dispatcher;
 import com.hardsoftstudio.rxflux.util.SubscriptionManager;
 import com.nrgentoo.tweeterstream.common.di.HasComponent;
 import com.nrgentoo.tweeterstream.common.di.component.ApplicationComponent;
+import com.nrgentoo.tweeterstream.db.AbstractTweetModel;
 import com.nrgentoo.tweeterstream.db.HomeTweetModel;
 import com.nrgentoo.tweeterstream.db.HomeTweetModel_Table;
+import com.nrgentoo.tweeterstream.db.UserTweetModel;
+import com.nrgentoo.tweeterstream.db.UserTweetModel_Table;
 import com.nrgentoo.tweeterstream.network.TwitterApi;
 import com.nrgentoo.tweeterstream.store.TimelineStore;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.core.models.User;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -97,29 +102,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
             tweetsObservable = Observable.just(timelineStore.getHomeTimeline());
         } else {
             // get from db or api
-            tweetsObservable = Observable.defer(() -> {
-                List<HomeTweetModel> tweetModels = SQLite.select()
-                        .from(HomeTweetModel.class)
-                        .orderBy(HomeTweetModel_Table.id, false) // order by id, descending
-                        .queryList();
-
-                if (!tweetModels.isEmpty()) {
-                    // get from local db
-                    Gson gson = new Gson();
-
-                    // action retrieved from db
-                    action.getData().put(Keys.PARAM_FROM_DB, true);
-
-                    return Observable.from(tweetModels)
-                            .flatMap(homeTweetModel -> Observable
-                                    .just(gson.fromJson(homeTweetModel.getJsonData(), Tweet.class)))
-                            .toList();
-                } else {
-                    // get from api
-                    return apiLazy.get().getCustomService().getHomeTimeline(TWEETS_COUNT, null,
-                            null, false, false, true, true);
-                }
-            });
+            tweetsObservable = getTweetsFromDbOrApi(HomeTweetModel.class, HomeTweetModel_Table.id,
+                    action, apiLazy.get().getCustomService().getHomeTimeline(TWEETS_COUNT, null,
+                            null, false, false, true, true));
         }
 
         addRxAction(action, tweetsObservable
@@ -127,7 +112,7 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
                     // insert to db
-                    insertHomeTweets(tweets);
+                    insertHomeTweets(tweets, HomeTweetModel::new);
 
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE, tweets);
@@ -151,7 +136,7 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
                     // insert to db
-                    insertHomeTweets(tweets);
+                    insertHomeTweets(tweets, HomeTweetModel::new);
 
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_UPDATES, tweets);
@@ -176,7 +161,7 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
                     // insert to db
-                    insertHomeTweets(tweets);
+                    insertHomeTweets(tweets, HomeTweetModel::new);
 
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_HOME_TIMELINE_MORE, tweets);
@@ -200,15 +185,20 @@ public class ActionsCreator extends RxActionCreator implements Actions {
             // return from memory
             tweetsObservable = Observable.just(timelineStore.getUserTimeline());
         } else {
-            // get from api
-            tweetsObservable = apiLazy.get().getCustomService().getUserTimeline(null, null,
-                    TWEETS_COUNT, null, null, false, false, true, true);
+            // get from db or api
+            tweetsObservable = getTweetsFromDbOrApi(UserTweetModel.class, UserTweetModel_Table.id,
+                    action, apiLazy.get().getCustomService().getUserTimeline(null, null,
+                            TWEETS_COUNT, null, null, false, false, true, true));
         }
 
         addRxAction(action, tweetsObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
+                    // insert to db
+                    insertHomeTweets(tweets, UserTweetModel::new);
+
+                    // post action with result
                     action.getData().put(Keys.RESULT_GET_USER_TIMELINE, tweets);
                     postRxAction(action);
                     removeRxAction(action);
@@ -229,6 +219,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
+                    // insert to db
+                    insertHomeTweets(tweets, UserTweetModel::new);
+
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_USER_TIMELINE_UPDATES, tweets);
                     postRxAction(action);
@@ -251,6 +244,9 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tweets -> {
+                    // insert to db
+                    insertHomeTweets(tweets, UserTweetModel::new);
+
                     // post action with result
                     action.getData().put(Keys.RESULT_GET_USER_TIMELINE_MORE, tweets);
                     postRxAction(action);
@@ -270,14 +266,57 @@ public class ActionsCreator extends RxActionCreator implements Actions {
         postRxAction(action);
     }
 
+    // --------------------------------------------------------------------------------------------
+    //      PRIVATE METHODS
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Get tweets from db or api
+     *
+     * @param klass model class
+     * @param idProperty sort property
+     * @param action calling action
+     * @param tweetsAPIObservable api tweets observable
+     * @param <T> model type
+     * @return tweets observable from db or api
+     */
+    private static <T extends AbstractTweetModel> Observable<List<Tweet>> getTweetsFromDbOrApi(
+            Class<T> klass,
+            IProperty idProperty,
+            RxAction action,
+            Observable<List<Tweet>> tweetsAPIObservable) {
+        return Observable.defer(() -> {
+            List<T> tweetModels = SQLite.select()
+                    .from(klass)
+                    .orderBy(idProperty, false)
+                    .queryList();
+
+            if (!tweetModels.isEmpty()) {
+                // get from local db
+                Gson gson = new Gson();
+
+                // action retrieved from db
+                action.getData().put(Keys.PARAM_FROM_DB, true);
+
+                return Observable.from(tweetModels)
+                        .flatMap(tweetModel -> Observable
+                                .just(gson.fromJson(tweetModel.getJsonData(), Tweet.class)))
+                        .toList();
+            } else {
+                // get from api
+                return tweetsAPIObservable;
+            }
+        });
+    }
+
     /**
      * Insert tweets to local db
      *
      * @param tweets list of new tweets
      */
-    private static void insertHomeTweets(List<Tweet> tweets) {
-        // insert to db
-        List<HomeTweetModel> homeTweetModels = new ArrayList<>();
+    private static void insertHomeTweets(List<Tweet> tweets, TweetModelBuilder builder) {
+        // insert into db
+        List<AbstractTweetModel> tweetModels = new ArrayList<>();
         Gson gson = new Gson();
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss zz yyyy");
@@ -287,18 +326,23 @@ public class ActionsCreator extends RxActionCreator implements Actions {
                 long dateMillis = sdf.parse(tweet.createdAt).getTime();
 
                 String tweetJson = gson.toJson(tweet);
-                HomeTweetModel homeTweetModel = new HomeTweetModel(tweet.id, dateMillis,
+                AbstractTweetModel tweetModel = builder.createTweetModel(tweet.id, dateMillis,
                         tweetJson);
-                homeTweetModels.add(homeTweetModel);
+                tweetModels.add(tweetModel);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
 
         // add transaction
-        SaveModelTransaction<HomeTweetModel> transaction =
-                new SaveModelTransaction<>(ProcessModelInfo.withModels(homeTweetModels));
+        SaveModelTransaction<AbstractTweetModel> transaction =
+                new SaveModelTransaction<>(ProcessModelInfo.withModels(tweetModels));
         TransactionManager.getInstance()
                 .addTransaction(transaction);
+    }
+
+    private interface TweetModelBuilder {
+
+        AbstractTweetModel createTweetModel(long id, long dateMillis, String tweetJson);
     }
 }
