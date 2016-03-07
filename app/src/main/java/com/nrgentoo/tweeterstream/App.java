@@ -2,7 +2,7 @@ package com.nrgentoo.tweeterstream;
 
 import android.app.Application;
 
-import com.facebook.stetho.Stetho;
+//import com.facebook.stetho.Stetho;
 import com.hardsoftstudio.rxflux.action.RxError;
 import com.hardsoftstudio.rxflux.dispatcher.RxViewDispatch;
 import com.hardsoftstudio.rxflux.store.RxStoreChange;
@@ -72,7 +72,7 @@ public class App extends Application implements HasComponent<ApplicationComponen
         FlowManager.init(this);
 
         // Stetho
-        Stetho.initializeWithDefaults(this);
+//        Stetho.initializeWithDefaults(this);
 
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
