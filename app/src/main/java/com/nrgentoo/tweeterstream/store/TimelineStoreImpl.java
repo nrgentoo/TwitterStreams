@@ -23,6 +23,8 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     List<Tweet> userTimelineUpdates;
     List<Tweet> userTimelineMore;
 
+    boolean isHomeTimelineGotFromDB = false;
+
     public TimelineStoreImpl(Dispatcher dispatcher) {
         super(dispatcher);
     }
@@ -58,12 +60,24 @@ public class TimelineStoreImpl extends RxStore implements TimelineStore {
     }
 
     @Override
+    public boolean isHomeTimelineGotFromDB() {
+        return isHomeTimelineGotFromDB;
+    }
+
+    @Override
     public void onRxAction(RxAction action) {
         switch (action.getType()) {
             case Actions.GET_HOME_TIMELINE:
                 // store received tweets
                 homeTimeline = new ArrayList<>();
                 homeTimeline.addAll(action.get(Keys.RESULT_GET_HOME_TIMELINE));
+
+                // set flag
+                if (action.getData().containsKey(Keys.PARAM_FROM_DB)) {
+                    isHomeTimelineGotFromDB = action.get(Keys.PARAM_FROM_DB);
+                } else {
+                    isHomeTimelineGotFromDB = false;
+                }
                 break;
             case Actions.GET_HOME_TIMELINE_UPDATES:
                 // save timeline updates

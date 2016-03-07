@@ -24,4 +24,6 @@ public interface TimelineStore {
     List<Tweet> getUserTimelineUpdates();
 
     List<Tweet> getUserTimelineMore();
+
+    boolean isHomeTimelineGotFromDB();
 }
