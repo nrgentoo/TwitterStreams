@@ -65,6 +65,12 @@ public class HomeTimelinePresenter extends AbstractPresenter {
                         this.bottomId = tweets.get(tweets.size() - 1).id;
 
                         timelineView.hideProgress();
+
+                        if (timelineStore.isHomeTimelineGotFromDB()) {
+                            // if tweets are from local db, then get new updates
+                            actions.getHomeTimelineUpdates(topId);
+                            timelineView.showProgress();
+                        }
                         break;
                     case Actions.GET_HOME_TIMELINE_UPDATES:
                         // timeline updates received

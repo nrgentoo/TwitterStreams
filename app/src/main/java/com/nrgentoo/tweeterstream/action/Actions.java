@@ -1,9 +1,5 @@
 package com.nrgentoo.tweeterstream.action;
 
-import android.support.annotation.Nullable;
-
-import com.twitter.sdk.android.core.Session;
-import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterSession;
 
 /**

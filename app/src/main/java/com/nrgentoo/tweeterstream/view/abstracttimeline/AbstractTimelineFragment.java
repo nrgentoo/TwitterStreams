@@ -26,6 +26,7 @@ abstract public class AbstractTimelineFragment extends Fragment implements Timel
 
     private TimelineAdapter adapter;
     private TimelinePresenter timelinePresenter;
+    private boolean refreshing;
 
     // --------------------------------------------------------------------------------------------
     //      UI REFERENCES
@@ -88,8 +89,10 @@ abstract public class AbstractTimelineFragment extends Fragment implements Timel
 
     @Override
     public void showProgress() {
+        refreshing = true;
+
         swipeRefreshLayout.post(() -> {
-            if (!swipeRefreshLayout.isRefreshing()) {
+            if (refreshing && !swipeRefreshLayout.isRefreshing()) {
                 swipeRefreshLayout.setRefreshing(true);
             }
         });
@@ -97,9 +100,11 @@ abstract public class AbstractTimelineFragment extends Fragment implements Timel
 
     @Override
     public void hideProgress() {
-        swipeRefreshLayout.postDelayed(() -> {
+        refreshing = false;
+
+        swipeRefreshLayout.post(() -> {
             swipeRefreshLayout.setRefreshing(false);
-        }, 100);
+        });
 
         adapter.hideProgress();
     }

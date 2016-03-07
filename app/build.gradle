@@ -53,6 +53,8 @@ dependencies {
 
     // dbflow
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
+    compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     // dagger
     provided 'com.google.dagger:dagger-compiler:2.0'
@@ -74,4 +76,9 @@ dependencies {
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.android.support:cardview-v7:23.2.0'
+
+    /**
+     * debug dependencies
+     */
+    debugCompile 'com.facebook.stetho:stetho:1.2.0'
 }
