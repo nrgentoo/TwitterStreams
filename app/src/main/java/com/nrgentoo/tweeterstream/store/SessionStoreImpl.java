@@ -63,6 +63,10 @@ public class SessionStoreImpl extends RxStore implements SessionStore {
                 // save session to shared preferences
                 saveSession(action.get(Keys.PARAM_SESSION));
                 break;
+            case Actions.LOGOUT:
+                // remove session from shared preferences
+                onLogout();
+                break;
             default:
                 return;
         }
@@ -82,5 +86,14 @@ public class SessionStoreImpl extends RxStore implements SessionStore {
                 .putLong(KEY_ID, session.getUserId())
                 .apply();
         this.session = session;
+    }
+
+    private void onLogout() {
+        sessionPrefs.edit()
+                .remove(KEY_TOKEN)
+                .remove(KEY_SECRET)
+                .remove(KEY_ID)
+                .apply();
+        this.session = null;
     }
 }
