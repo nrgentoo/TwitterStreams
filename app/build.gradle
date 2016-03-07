@@ -41,6 +41,8 @@ android {
     }
 }
 
+def dbflow_version = "3.0.0-beta4"
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
@@ -48,6 +50,9 @@ dependencies {
     compile('com.twitter.sdk.android:twitter:1.13.0@aar') {
         transitive = true;
     }
+
+    // dbflow
+    apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
     // dagger
     provided 'com.google.dagger:dagger-compiler:2.0'
